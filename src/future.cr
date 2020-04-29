@@ -108,7 +108,7 @@ module Future
     end
 
     private def value_or_raise
-      raise Concurrent::CanceledError.new(@cancel_msg) if @state == State::Canceled
+      raise Future::CanceledError.new(@cancel_msg) if @state == State::Canceled
 
       error = @error
       value = @value

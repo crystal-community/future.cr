@@ -21,7 +21,7 @@ describe Future do
       d.cancel
       d.canceled?.should be_true
 
-      expect_raises(Concurrent::CanceledError) { d.get }
+      expect_raises(Future::CanceledError) { d.get }
     end
 
     it "raises" do
@@ -114,7 +114,7 @@ describe Future do
       l.cancel
       l.canceled?.should be_true
 
-      expect_raises(Concurrent::CanceledError) { l.get }
+      expect_raises(Future::CanceledError) { l.get }
     end
 
     it "raises" do
