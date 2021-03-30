@@ -4,6 +4,6 @@ version: 1.0.0
 authors:
   - Brian J. Cardiff <bcardiff@manas.tech>
 
-crystal: >= 0.34.0
+crystal: '>= 0.34.0'
 
 license: MIT
