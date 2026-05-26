@@ -16,14 +16,16 @@ module Future
     @value : R?
     @error : Exception?
     @delay : Float64
+    @name : String?
 
-    def initialize(run_immediately = true, delay = 0.0, &@block : -> R)
+    def initialize(run_immediately = true, delay = 0.0, name = nil, &@block : -> R)
       @state = State::Idle
       @value = nil
       @error = nil
       @channel = Channel(Nil).new
       @delay = delay.to_f
       @cancel_msg = nil
+      @name = name
 
       spawn_compute if run_immediately
     end
@@ -79,14 +81,14 @@ module Future
 
       @state = @delay > 0 ? State::Delayed : State::Running
 
-      spawn { run_compute }
+      spawn(name: @name) { run_compute }
     end
 
     private def run_compute
       delay = @delay
 
       if delay > 0
-        sleep delay
+        sleep delay.seconds
         return if @state >= State::Canceled
         @state = State::Running
       end
@@ -136,8 +138,8 @@ end
 # # ... long operations ...
 # d.cancel
 # ```
-def delay(delay, &block : -> _)
-  Future::Compute.new delay: delay, &block
+def delay(delay, name : String? = nil, &block : -> _)
+  Future::Compute.new delay: delay, name: name, &block
 end
 
 # Spawns a `Fiber` to compute *&block* in the background.
@@ -150,8 +152,8 @@ end
 # # ... other actions ...
 # f.get # => "hello\n"
 # ```
-def future(&exp : -> _)
-  Future::Compute.new &exp
+def future(name : String? = nil, &exp : -> _)
+  Future::Compute.new name: name, &exp
 end
 
 # Conditionally spawns a `Fiber` to run *&block* in the background.
@@ -165,6 +167,6 @@ end
 # spawn { maybe_use_computation(l) }
 # spawn { maybe_use_computation(l) }
 # ```
-def lazy(&block : -> _)
-  Future::Compute.new run_immediately: false, &block
+def lazy(name : String? = nil, &block : -> _)
+  Future::Compute.new name: name, run_immediately: false, &block
 end
